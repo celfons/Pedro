@@ -1,0 +1,412 @@
+{
+  "tipos_servico": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "nome"
+        ],
+        "properties": {
+          "nome": {
+            "bsonType": "string",
+            "description": "Nome do tipo de serviço (único)"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "nome": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "uk_tipos_servico_nome"
+        }
+      }
+    ]
+  },
+  "areas_servico": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "nome"
+        ],
+        "properties": {
+          "nome": {
+            "bsonType": "string",
+            "description": "Nome da área de serviço (único)"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "nome": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "uk_areas_servico_nome"
+        }
+      }
+    ]
+  },
+  "motoristas": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "nome_completo",
+          "cpf",
+          "numero_cnh",
+          "data_vencimento_cnh"
+        ],
+        "properties": {
+          "nome_completo": {
+            "bsonType": "string"
+          },
+          "cpf": {
+            "bsonType": "string"
+          },
+          "numero_cnh": {
+            "bsonType": "string"
+          },
+          "data_vencimento_cnh": {
+            "bsonType": "date"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "cpf": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "uk_motoristas_cpf"
+        }
+      },
+      {
+        "keys": {
+          "numero_cnh": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "uk_motoristas_cnh"
+        }
+      }
+    ]
+  },
+  "veiculos": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "placa",
+          "chassi",
+          "marca",
+          "modelo",
+          "quilometragem_atual",
+          "tipo_combustivel",
+          "status"
+        ],
+        "properties": {
+          "placa": {
+            "bsonType": "string"
+          },
+          "chassi": {
+            "bsonType": "string"
+          },
+          "id_motorista_alocado": {
+            "bsonType": [
+              "objectId",
+              "null"
+            ]
+          },
+          "marca": {
+            "bsonType": "string"
+          },
+          "modelo": {
+            "bsonType": "string"
+          },
+          "quilometragem_atual": {
+            "bsonType": "int",
+            "minimum": 0
+          },
+          "tipo_combustivel": {
+            "bsonType": "string",
+            "enum": [
+              "Gasolina",
+              "Etanol",
+              "Flex",
+              "Diesel",
+              "GNV",
+              "Elétrico",
+              "Híbrido",
+              "Outro"
+            ]
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": [
+              "Disponivel",
+              "Em_Uso",
+              "Manutencao",
+              "Inativo"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "placa": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "uk_veiculos_placa"
+        }
+      },
+      {
+        "keys": {
+          "chassi": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "uk_veiculos_chassi"
+        }
+      },
+      {
+        "keys": {
+          "id_motorista_alocado": 1
+        },
+        "options": {
+          "name": "idx_veiculos_motorista_alocado"
+        }
+      }
+    ]
+  },
+  "viagens": {
+    "validator": {
+      "$and": [
+        {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+              "id_veiculo",
+              "id_motorista",
+              "data_hora_saida",
+              "data_hora_chegada",
+              "km_saida",
+              "km_chegada",
+              "finalidade"
+            ],
+            "properties": {
+              "id_veiculo": {
+                "bsonType": "objectId"
+              },
+              "id_motorista": {
+                "bsonType": "objectId"
+              },
+              "data_hora_saida": {
+                "bsonType": "date"
+              },
+              "data_hora_chegada": {
+                "bsonType": "date"
+              },
+              "km_saida": {
+                "bsonType": "int",
+                "minimum": 0
+              },
+              "km_chegada": {
+                "bsonType": "int",
+                "minimum": 0
+              },
+              "finalidade": {
+                "bsonType": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        {
+          "$expr": {
+            "$and": [
+              {
+                "$gte": [
+                  "$data_hora_chegada",
+                  "$data_hora_saida"
+                ]
+              },
+              {
+                "$gte": [
+                  "$km_chegada",
+                  "$km_saida"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "id_veiculo": 1,
+          "data_hora_saida": 1
+        },
+        "options": {
+          "name": "idx_viagens_veiculo_data"
+        }
+      },
+      {
+        "keys": {
+          "id_motorista": 1,
+          "data_hora_saida": 1
+        },
+        "options": {
+          "name": "idx_viagens_motorista_data"
+        }
+      }
+    ]
+  },
+  "abastecimentos": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "id_veiculo",
+          "data_abastecimento",
+          "litros_abastecidos",
+          "valor_total",
+          "km_abastecimento"
+        ],
+        "properties": {
+          "id_veiculo": {
+            "bsonType": "objectId"
+          },
+          "data_abastecimento": {
+            "bsonType": "date"
+          },
+          "litros_abastecidos": {
+            "bsonType": "decimal",
+            "minimum": 0
+          },
+          "valor_total": {
+            "bsonType": "decimal",
+            "minimum": 0
+          },
+          "km_abastecimento": {
+            "bsonType": "int",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "id_veiculo": 1,
+          "data_abastecimento": 1
+        },
+        "options": {
+          "name": "idx_abastecimentos_veiculo_data"
+        }
+      }
+    ]
+  },
+  "manutencoes": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "id_veiculo",
+          "id_tipo_servico",
+          "data_entrada",
+          "custo_total",
+          "km_na_manutencao"
+        ],
+        "properties": {
+          "id_veiculo": {
+            "bsonType": "objectId"
+          },
+          "id_tipo_servico": {
+            "bsonType": "objectId"
+          },
+          "data_entrada": {
+            "bsonType": "date"
+          },
+          "custo_total": {
+            "bsonType": "decimal",
+            "minimum": 0
+          },
+          "km_na_manutencao": {
+            "bsonType": "int",
+            "minimum": 0
+          },
+          "itens_servico": {
+            "bsonType": [
+              "array"
+            ],
+            "items": {
+              "bsonType": "object",
+              "required": [
+                "id_area_servico",
+                "item_descricao",
+                "custo_unitario"
+              ],
+              "properties": {
+                "id_area_servico": {
+                  "bsonType": "objectId"
+                },
+                "item_descricao": {
+                  "bsonType": "string"
+                },
+                "custo_unitario": {
+                  "bsonType": "decimal",
+                  "minimum": 0
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error",
+    "indexes": [
+      {
+        "keys": {
+          "id_veiculo": 1,
+          "data_entrada": 1
+        },
+        "options": {
+          "name": "idx_manutencoes_veiculo_data"
+        }
+      }
+    ]
+  }
+}
